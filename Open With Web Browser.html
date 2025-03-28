@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horion NBT Helper</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Add Three.js for GLTF support -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-darker: #070709;
+      --neon-blue: #0e82f1;
+      --neon-purple: #a742f5;
+      --neon-teal: #00eeff;
+      --text-glow: 0 0 10px rgba(0, 238, 255, 0.7);
+    }
+
+    /* Global Styles */
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 20% 20%, rgba(14, 130, 241, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(167, 66, 245, 0.03) 0%, transparent 50%);
+      color: #ffffff;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Utility Classes */
+    .glow-text {
+      text-shadow: var(--text-glow);
+    }
+
+    .neon-border {
+      border: 1px solid var(--neon-teal);
+      box-shadow: 0 0 10px rgba(0, 238, 255, 0.3);
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background-color: var(--bg-darker);
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(14, 130, 241, 0.3);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .navbar-brand span {
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 900;
+    }
+
+    .navbar-nav .nav-link {
+      color: white;
+      margin: 0 15px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: var(--neon-teal);
+      text-shadow: var(--text-glow);
+    }
+
+    .navbar-nav .nav-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -3px;
+      left: 0;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      transition: width 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .social-icon {
+      color: white;
+      font-size: 1.2rem;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+    }
+
+    .social-icon:hover {
+      color: var(--neon-teal);
+      transform: translateY(-3px);
+    }
+
+    /* Main Content Styles */
+    .hero-section {
+      text-align: center;
+      padding: 60px 20px 30px;
+      position: relative;
+    }
+
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: #cccccc;
+      max-width: 800px;
+      margin: 0 auto 40px;
+    }
+
+    /* Tool Card Styles */
+    .tool-card {
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      padding: 30px;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      z-index: 1;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Drop Area Styles */
+    #drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(14, 130, 241, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      transition: width 0.6s ease;
+    }
+
+    #drop-area:hover::after {
+      width: 100%;
+    }
+
+    #drop-area.dragover {
+      border-color: var(--neon-teal);
+      background-color: rgba(14, 130, 241, 0.1);
+      box-shadow: 0 0 30px rgba(0, 238, 255, 0.2);
+    }
+
+    #drop-area i {
+      font-size: 3rem;
+      color: var(--neon-blue);
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    /* Input Styles */
+    .form-control {
+      background-color: rgba(20, 20, 30, 0.7);
+      border: 1px solid rgba(14, 130, 241, 0.3);
+      border-radius: 8px;
+      color: white;
+      padding: 12px 20px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      background-color: rgba(20, 20, 30, 0.9);
+      border-color: var(--neon-teal);
+      box-shadow: 0 0 15px rgba(0, 238, 255, 0.2);
+      outline: none;
+    }
+
+    /* Button Styles */
+    .btn-cyber {
+      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      padding: 12px 30px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn-cyber::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+      transition: left 0.6s ease;
+      z-index: -1;
+    }
+
+    .btn-cyber:hover::before {
+      left: 0;
+    }
+
+    .btn-cyber:hover {
+      box-shadow: 0 0 20px rgba(14, 130, 241, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Output Preview Styles */
+    #output-preview {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #output-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    }
+
+    #output-preview h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #preview-text {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      color: #00eeff;
+      border: 1px solid rgba(14, 130, 241, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: nowrap;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    /* Info Section Styles */
+    .info-section {
+      padding: 40px 0;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-top: 1px solid rgba(14, 130, 241, 0.3);
+    }
+
+    .info-card {
+      background-color: rgba(15, 15, 25, 0.7);
+      border-radius: 10px;
+      padding: 25px;
+      height: 100%;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 0;
+      background: linear-gradient(180deg, var(--neon-blue), var(--neon-purple));
+      transition: height 0.5s ease;
+    }
+
+    .info-card:hover::before {
+      height: 100%;
+    }
+
+    .info-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .info-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--neon-teal);
+    }
+
+    .info-card ul {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+
+    .info-card ul li {
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    /* Footer Styles */
+    .footer {
+      background-color: var(--bg-darker);
+      padding: 30px 0;
+      border-top: 1px solid rgba(14, 130, 241, 0.3);
+    }
+
+    .footer-links a {
+      color: #cccccc;
+      margin: 0 15px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--neon-teal);
+      text-shadow: var(--text-glow);
+    }
+
+    .copyright {
+      color: #888888;
+      font-size: 0.9rem;
+      margin-top: 20px;
+    }
+
+    /* Glowing Neon Effect */
+    @keyframes neon-glow {
+      0% {
+        text-shadow: 0 0 5px rgba(0, 238, 255, 0.7), 0 0 10px rgba(0, 238, 255, 0.5);
+      }
+      50% {
+        text-shadow: 0 0 20px rgba(0, 238, 255, 0.8), 0 0 30px rgba(0, 238, 255, 0.6);
+      }
+      100% {
+        text-shadow: 0 0 5px rgba(0, 238, 255, 0.7), 0 0 10px rgba(0, 238, 255, 0.5);
+      }
+    }
+
+    .neon-text {
+      animation: neon-glow 2s infinite;
+      color: var(--neon-teal);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .info-card {
+        margin-bottom: 20px;
+      }
+    }
+
+    /* Validation Message Styles */
+    #validation-message,
+    #nbt-validation-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff3b3b;
+      color: #ff6b6b;
+    }
+    
+    /* NBT Drop Area Styles */
+    #nbt-drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(167, 66, 245, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #nbt-drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+      transition: width 0.6s ease;
+    }
+
+    #nbt-drop-area:hover::after {
+      width: 100%;
+    }
+
+    #nbt-drop-area.dragover {
+      border-color: var(--neon-purple);
+      background-color: rgba(167, 66, 245, 0.1);
+      box-shadow: 0 0 30px rgba(167, 66, 245, 0.2);
+    }
+
+    #nbt-drop-area i {
+      font-size: 3rem;
+      color: var(--neon-purple);
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    /* Tool Section Styles */
+    .tool-section {
+      transition: opacity 0.3s ease;
+    }
+    
+    /* Raw Output Preview Styles */
+    #raw-output-preview {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #raw-output-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+    }
+
+    #raw-output-preview h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #raw-preview-text {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      color: var(--neon-purple);
+      border: 1px solid rgba(167, 66, 245, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: nowrap;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    
+    /* 3D Model Section Styles */
+    #model-drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(0, 238, 255, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #model-drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-blue));
+      transition: width 0.6s ease;
+    }
+
+    #model-drop-area:hover::after {
+      width: 100%;
+    }
+
+    #model-drop-area.dragover {
+      border-color: var(--neon-teal);
+      background-color: rgba(0, 238, 255, 0.1);
+      box-shadow: 0 0 30px rgba(0, 238, 255, 0.2);
+    }
+
+    #model-drop-area i {
+      font-size: 3rem;
+      color: var(--neon-teal);
+      margin-bottom: 15px;
+      display: block;
+    }
+    
+    #model-validation-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff3b3b;
+      color: #ff6b6b;
+    }
+    
+    #model-commands {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #model-commands::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-purple));
+    }
+
+    #model-commands h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #model-commands-text {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      color: var(--neon-teal);
+      border: 1px solid rgba(0, 238, 255, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: nowrap;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    
+    /* Model Options Section */
+    #model-options {
+      background-color: rgba(15, 15, 25, 0.7);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+      border-left: 3px solid var(--neon-teal);
+    }
+    
+    #model-progress {
+      padding: 20px;
+      background-color: rgba(15, 15, 25, 0.7);
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    /* Extract Commands Styles */
+    #extract-drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(0, 238, 255, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #extract-drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-purple));
+      transition: width 0.6s ease;
+    }
+
+    #extract-drop-area:hover::after {
+      width: 100%;
+    }
+
+    #extract-drop-area.dragover {
+      border-color: var(--neon-teal);
+      background-color: rgba(0, 238, 255, 0.1);
+      box-shadow: 0 0 30px rgba(0, 238, 255, 0.2);
+    }
+
+    #extract-drop-area i {
+      font-size: 3rem;
+      color: var(--neon-teal);
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    #extract-validation-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff3b3b;
+      color: #ff6b6b;
+    }
+
+    #extract-output-preview {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #extract-output-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-purple));
+    }
+
+    #extract-output-preview h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-teal), var(--neon-blue));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #extract-preview-text {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      color: var(--neon-teal);
+      border: 1px solid rgba(0, 238, 255, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: pre;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    /* Commands to Structure Styles */
+    #cmd-struct-drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(167, 66, 245, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cmd-struct-drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+      transition: width 0.6s ease;
+    }
+
+    #cmd-struct-drop-area:hover::after {
+      width: 100%;
+    }
+
+    #cmd-struct-drop-area.dragover {
+      border-color: var(--neon-purple);
+      background-color: rgba(167, 66, 245, 0.1);
+      box-shadow: 0 0 30px rgba(167, 66, 245, 0.2);
+    }
+
+    #cmd-struct-drop-area i {
+      font-size: 3rem;
+      color: var(--neon-purple);
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    #cmd-struct-validation-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff3b3b;
+      color: #ff6b6b;
+    }
+
+    #cmd-struct-output-preview {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #cmd-struct-output-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+    }
+
+    #cmd-struct-output-preview h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-purple), var(--neon-teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #cmd-struct-preview-container {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      border: 1px solid rgba(167, 66, 245, 0.3);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #cmd-struct-preview-text {
+      color: var(--neon-purple);
+      font-family: 'Consolas', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#"><span>BLACKLIGHT</span> NBTS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#raw-to-nbt">Raw to NBT</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#extract-commands">Extract Commands</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#commands-to-structure">Commands to Structure</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+          </li>
+          <li class="nav-item">
+            <a class="social-icon" href="#" title="Join our Discord">
+              <i class="fab fa-discord"></i>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="social-icon" href="#" title="GitHub Repository">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">MINECRAFT NBT CONVERTER</h1>
+      <p class="hero-subtitle">Convert between raw commands and NBT structures for Minecraft. Built by GTA, maintained by the Blacklight NBTS community.</p>
+    </div>
+  </section>
+
+  <!-- Tool Sections -->
+  <section class="py-5">
+    <div class="container">
+      <!-- Raw to NBT Section -->
+      <div id="raw-to-nbt" class="row tool-section active">
+        <div class="col-lg-8 mx-auto">
+          <div class="tool-card">
+            <h3 class="text-center mb-4 neon-text">RAW TO NBT CONVERTER</h3>
+            <!-- Drop Area -->
+            <div id="drop-area" title="Text files only">
+              <i class="fas fa-file-upload"></i>
+              <p>Drag and drop your file here, or click to select one</p>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-6">
+                <label for="nbt-title" class="form-label text-light mb-2">NBT Output Name</label>
+                <input type="text" id="nbt-title" class="form-control" placeholder="Enter a name for your NBT">
+              </div>
+              <div class="col-md-6">
+                <label for="bytes-per-npc" class="form-label text-light mb-2">Bytes Per NPC</label>
+                <input type="number" id="bytes-per-npc" class="form-control" placeholder="Default is 2000" value="2000">
+              </div>
+            </div>
+
+            <input type="file" id="input-file" style="display:none;">
+            
+            <div class="text-center mt-4">
+              <button id="generate-button" class="btn btn-cyber">
+                <i class="fas fa-bolt me-2"></i>Generate NBT
+              </button>
+            </div>
+
+            <div id="validation-message"></div>
+          </div>
+
+          <!-- Output Preview -->
+          <div id="output-preview">
+            <h4><i class="fas fa-code me-2"></i>OUTPUT PREVIEW</h4>
+            <textarea id="preview-text" rows="10" readonly></textarea>
+            <div class="text-center">
+              <button id="download-button" class="btn btn-cyber">
+                <i class="fas fa-download me-2"></i>Download NBT File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extract Commands Section -->
+      <div id="extract-commands" class="row tool-section mt-5">
+        <div class="col-lg-8 mx-auto">
+          <div class="tool-card">
+            <h3 class="text-center mb-4 neon-text">EXTRACT COMMANDS</h3>
+            <!-- Drop Area -->
+            <div id="extract-drop-area" title="Text files only">
+              <i class="fas fa-file-upload"></i>
+              <p>Drag and drop your NBT file here, or click to select one</p>
+            </div>
+
+            <input type="file" id="extract-input-file" style="display:none;">
+            
+            <div class="text-center mt-4">
+              <button id="extract-button" class="btn btn-cyber">
+                <i class="fas fa-magic me-2"></i>Extract Commands
+              </button>
+            </div>
+
+            <div id="extract-validation-message"></div>
+          </div>
+
+          <!-- Extract Output Preview -->
+          <div id="extract-output-preview">
+            <h4><i class="fas fa-code me-2"></i>EXTRACTED COMMANDS</h4>
+            <textarea id="extract-preview-text" rows="10" readonly></textarea>
+            <div class="text-center">
+              <button id="extract-download-button" class="btn btn-cyber">
+                <i class="fas fa-download me-2"></i>Download Commands
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commands to Structure Section -->
+      <div id="commands-to-structure" class="row tool-section mt-5">
+        <div class="col-lg-8 mx-auto">
+          <div class="tool-card">
+            <h3 class="text-center mb-4 neon-text">COMMANDS TO STRUCTURE</h3>
+            <!-- Drop Area -->
+            <div id="cmd-struct-drop-area" title="Text files with Minecraft commands">
+              <i class="fas fa-file-upload"></i>
+              <p>Drag and drop your commands file here, or click to select one</p>
+            </div>
+
+            <input type="file" id="cmd-struct-input-file" style="display:none;">
+            
+            <div class="text-center mt-4">
+              <button id="cmd-struct-convert-button" class="btn btn-cyber">
+                <i class="fas fa-cubes me-2"></i>Convert to Structure
+              </button>
+            </div>
+
+            <div id="cmd-struct-validation-message"></div>
+          </div>
+
+          <!-- Structure Preview -->
+          <div id="cmd-struct-output-preview">
+            <h4><i class="fas fa-cube me-2"></i>STRUCTURE PREVIEW</h4>
+            <div id="cmd-struct-preview-container" class="mb-4">
+              <pre id="cmd-struct-preview-text" class="p-3"></pre>
+            </div>
+            <div class="text-center">
+              <button id="cmd-struct-download-button" class="btn btn-cyber">
+                <i class="fas fa-download me-2"></i>Download .mcstructure File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="info-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="info-card">
+            <h3><i class="fas fa-exclamation-triangle me-2"></i>Known Limitations</h3>
+            <ul>
+              <li>Raw to NBT uses a moving block</li>
+              <li>Does not support double quotes in the name</li>
+              <li>Only guaranteed to work in a 9x9 square chunk area, centered on the NPCs</li>
+              <li>"Atomic" commands are not guaranteed to run in the intended order</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="info-card">
+            <h3><i class="fas fa-wrench me-2"></i>Troubleshooting</h3>
+            <ul>
+              <li><i>Dialogs do not loop:</i> Likely due to lingering NPCs from another result. Remove any such NPCs</li>
+              <li><i>Command button does not appear:</i> NPC has likely been overloaded. Decrease the "Bytes per NPC" value</li>
+              <li><i>Missing commands in extraction:</i> Some complex NBT formats may not be fully supported in extraction</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="info-card">
+            <h3><i class="fas fa-info-circle me-2"></i>Tool Features</h3>
+            <ul>
+              <li><b>Raw to NBT:</b> Convert raw commands to NBT structure for in-game use</li>
+              <li><b>Extract Commands:</b> Extract commands from NBT files for editing or backup</li>
+              <li><b>Commands to Structure:</b> Convert setblock/fill commands to .mcstructure files</li>
+              <li>Automatic sorting of commands for logical build order</li>
+              <li>Support for complex block states with attributes</li>
+            </ul>
+            <div class="mt-3 text-center">
+              <a href="https://discord.gg/" class="btn btn-sm btn-cyber mt-3">
+                <i class="fab fa-discord me-2"></i>Join Our Community
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer Section -->
+  <section class="py-4" style="background-color: rgba(10, 10, 15, 0.5);">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10 mx-auto">
+          <div class="p-4 rounded" style="border-left: 4px solid var(--neon-blue);">
+            <h5 class="neon-text mb-3"><i class="fas fa-shield-alt me-2"></i>Disclaimer</h5>
+            <p class="text-light mb-0" style="font-size: 0.9rem;">
+              The responsibility for any use or misuse of this program lies with the user, not the creator. You agree by using this program that you take full responsibility for any actions you take with this program's results. The creator trusts the user to be responsible and positive.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container text-center">
+      <div class="footer-links">
+        <a href="#">Home</a>
+        <a href="#">Tools</a>
+        <a href="#">About</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+      </div>
+      <div class="social-links mt-3">
+        <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+      </div>
+      <div class="copyright">
+        &copy; 2023 Blacklight NBTS. All rights reserved. Not affiliated with Minecraft or Mojang.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Tab Navigation Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+      const toolSections = document.querySelectorAll('.tool-section');
+      
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // Remove active class from all links
+          navLinks.forEach(l => l.classList.remove('active'));
+          // Add active class to clicked link
+          this.classList.add('active');
+          
+          // Hide all tool sections
+          toolSections.forEach(section => section.style.display = 'none');
+          
+          // Show the targeted section
+          const targetId = this.getAttribute('href').substring(1);
+          if(targetId) {
+            document.getElementById(targetId).style.display = 'flex';
+          }
+        });
+      });
+    });
+  </script>
+  
+  <!-- Custom JS -->
+  <script src="index.js"></script>
+</body>
+
+</html>
