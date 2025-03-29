@@ -25,7 +25,7 @@
     /* Global Styles */
     body {
       background-color: var(--bg-dark);
-      background-image: 
+      background-image:
         radial-gradient(circle at 20% 20%, rgba(14, 130, 241, 0.03) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(167, 66, 245, 0.03) 0%, transparent 50%);
       color: #ffffff;
@@ -290,21 +290,6 @@
       display: inline-block;
     }
 
-    #preview-text {
-      width: 100%;
-      background-color: rgba(20, 20, 30, 0.7);
-      color: #00eeff;
-      border: 1px solid rgba(14, 130, 241, 0.3);
-      padding: 15px;
-      border-radius: 8px;
-      resize: vertical;
-      white-space: nowrap;
-      min-height: 200px;
-      font-family: 'Consolas', monospace;
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
-
     /* Info Section Styles */
     .info-section {
       padding: 40px 0;
@@ -425,7 +410,7 @@
       border-left: 4px solid #ff3b3b;
       color: #ff6b6b;
     }
-    
+
     /* NBT Drop Area Styles */
     #nbt-drop-area {
       margin: 15px auto;
@@ -468,12 +453,12 @@
       margin-bottom: 15px;
       display: block;
     }
-    
+
     /* Tool Section Styles */
     .tool-section {
       transition: opacity 0.3s ease;
     }
-    
+
     /* Raw Output Preview Styles */
     #raw-output-preview {
       display: none;
@@ -505,21 +490,6 @@
       display: inline-block;
     }
 
-    #raw-preview-text {
-      width: 100%;
-      background-color: rgba(20, 20, 30, 0.7);
-      color: var(--neon-purple);
-      border: 1px solid rgba(167, 66, 245, 0.3);
-      padding: 15px;
-      border-radius: 8px;
-      resize: vertical;
-      white-space: nowrap;
-      min-height: 200px;
-      font-family: 'Consolas', monospace;
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
-    
     /* 3D Model Section Styles */
     #model-drop-area {
       margin: 15px auto;
@@ -562,7 +532,7 @@
       margin-bottom: 15px;
       display: block;
     }
-    
+
     #model-validation-message {
       display: none;
       margin-top: 20px;
@@ -572,7 +542,7 @@
       border-left: 4px solid #ff3b3b;
       color: #ff6b6b;
     }
-    
+
     #model-commands {
       display: none;
       margin-top: 40px;
@@ -617,7 +587,7 @@
       margin-bottom: 20px;
       overflow-x: auto;
     }
-    
+
     /* Model Options Section */
     #model-options {
       background-color: rgba(15, 15, 25, 0.7);
@@ -626,7 +596,7 @@
       margin-top: 20px;
       border-left: 3px solid var(--neon-teal);
     }
-    
+
     #model-progress {
       padding: 20px;
       background-color: rgba(15, 15, 25, 0.7);
@@ -832,6 +802,51 @@
       overflow-y: auto;
       margin-bottom: 0;
     }
+
+    /* File input styling for better accessibility */
+    .file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+      opacity: 0.01; /* Not fully transparent to ensure it's accessible */
+    }
+    
+    /* Make drop areas more clearly clickable */
+    #drop-area, #extract-drop-area, #cmd-struct-drop-area {
+      cursor: pointer;
+      position: relative;
+    }
+
+    /* Output textareas styling */
+    .code-textarea {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: pre;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      line-height: 1.4;
+      tab-size: 4;
+    }
+
+    #preview-text {
+      color: #00eeff; 
+      border: 1px solid rgba(14, 130, 241, 0.3);
+    }
+
+    #extract-preview-text {
+      color: var(--neon-teal);
+      border: 1px solid rgba(0, 238, 255, 0.3);
+    }
   </style>
 </head>
 
@@ -892,6 +907,7 @@
             <div id="drop-area" title="Text files only">
               <i class="fas fa-file-upload"></i>
               <p>Drag and drop your file here, or click to select one</p>
+              <input type="file" id="input-file" accept=".txt" class="file-input">
             </div>
 
             <div class="row mt-4">
@@ -905,8 +921,6 @@
               </div>
             </div>
 
-            <input type="file" id="input-file" style="display:none;">
-            
             <div class="text-center mt-4">
               <button id="generate-button" class="btn btn-cyber">
                 <i class="fas fa-bolt me-2"></i>Generate NBT
@@ -917,9 +931,9 @@
           </div>
 
           <!-- Output Preview -->
-          <div id="output-preview">
+          <div id="output-preview" style="display: none;">
             <h4><i class="fas fa-code me-2"></i>OUTPUT PREVIEW</h4>
-            <textarea id="preview-text" rows="10" readonly></textarea>
+            <textarea id="preview-text" class="code-textarea" rows="10" readonly spellcheck="false" wrap="soft"></textarea>
             <div class="text-center">
               <button id="download-button" class="btn btn-cyber">
                 <i class="fas fa-download me-2"></i>Download NBT File
@@ -930,7 +944,7 @@
       </div>
 
       <!-- Extract Commands Section -->
-      <div id="extract-commands" class="row tool-section mt-5">
+      <div id="extract-commands" class="row tool-section mt-5" style="display: none;">
         <div class="col-lg-8 mx-auto">
           <div class="tool-card">
             <h3 class="text-center mb-4 neon-text">EXTRACT COMMANDS</h3>
@@ -938,10 +952,9 @@
             <div id="extract-drop-area" title="Text files only">
               <i class="fas fa-file-upload"></i>
               <p>Drag and drop your NBT file here, or click to select one</p>
+              <input type="file" id="extract-input-file" accept=".txt" class="file-input">
             </div>
 
-            <input type="file" id="extract-input-file" style="display:none;">
-            
             <div class="text-center mt-4">
               <button id="extract-button" class="btn btn-cyber">
                 <i class="fas fa-magic me-2"></i>Extract Commands
@@ -952,9 +965,9 @@
           </div>
 
           <!-- Extract Output Preview -->
-          <div id="extract-output-preview">
+          <div id="extract-output-preview" style="display: none;">
             <h4><i class="fas fa-code me-2"></i>EXTRACTED COMMANDS</h4>
-            <textarea id="extract-preview-text" rows="10" readonly></textarea>
+            <textarea id="extract-preview-text" class="code-textarea" rows="10" readonly spellcheck="false" wrap="soft"></textarea>
             <div class="text-center">
               <button id="extract-download-button" class="btn btn-cyber">
                 <i class="fas fa-download me-2"></i>Download Commands
@@ -965,7 +978,7 @@
       </div>
 
       <!-- Commands to Structure Section -->
-      <div id="commands-to-structure" class="row tool-section mt-5">
+      <div id="commands-to-structure" class="row tool-section mt-5" style="display: none;">
         <div class="col-lg-8 mx-auto">
           <div class="tool-card">
             <h3 class="text-center mb-4 neon-text">COMMANDS TO STRUCTURE</h3>
@@ -973,10 +986,9 @@
             <div id="cmd-struct-drop-area" title="Text files with Minecraft commands">
               <i class="fas fa-file-upload"></i>
               <p>Drag and drop your commands file here, or click to select one</p>
+              <input type="file" id="cmd-struct-input-file" accept=".txt" class="file-input">
             </div>
 
-            <input type="file" id="cmd-struct-input-file" style="display:none;">
-            
             <div class="text-center mt-4">
               <button id="cmd-struct-convert-button" class="btn btn-cyber">
                 <i class="fas fa-cubes me-2"></i>Convert to Structure
@@ -987,10 +999,10 @@
           </div>
 
           <!-- Structure Preview -->
-          <div id="cmd-struct-output-preview">
+          <div id="cmd-struct-output-preview" style="display: none;">
             <h4><i class="fas fa-cube me-2"></i>STRUCTURE PREVIEW</h4>
             <div id="cmd-struct-preview-container" class="mb-4">
-              <pre id="cmd-struct-preview-text" class="p-3"></pre>
+              <pre id="cmd-struct-preview-text" class="code-textarea p-3"></pre>
             </div>
             <div class="text-center">
               <button id="cmd-struct-download-button" class="btn btn-cyber">
@@ -1081,44 +1093,62 @@
         <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
       </div>
       <div class="copyright">
-        &copy; 2023 Blacklight NBTS. All rights reserved. Not affiliated with Minecraft or Mojang.
+        © 2023 Blacklight NBTS. All rights reserved. Not affiliated with Minecraft or Mojang.
       </div>
     </div>
   </footer>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  
+
   <!-- Tab Navigation Script -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
       const toolSections = document.querySelectorAll('.tool-section');
-      
+
+      // Function to hide all sections and show the target one
+      function showSection(targetId) {
+        // Hide all tool sections
+        toolSections.forEach(section => section.style.display = 'none');
+        // Show the targeted section
+        const targetSection = document.getElementById(targetId);
+        if(targetSection) {
+          targetSection.style.display = 'flex'; // Use flex to match layout
+        }
+      }
+
+      // Initial setup: Show the default active section ('raw-to-nbt')
+      showSection('raw-to-nbt');
+
       navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
-          e.preventDefault();
-          
-          // Remove active class from all links
-          navLinks.forEach(l => l.classList.remove('active'));
-          // Add active class to clicked link
-          this.classList.add('active');
-          
-          // Hide all tool sections
-          toolSections.forEach(section => section.style.display = 'none');
-          
-          // Show the targeted section
-          const targetId = this.getAttribute('href').substring(1);
-          if(targetId) {
-            document.getElementById(targetId).style.display = 'flex';
+          e.preventDefault(); // Prevent default anchor behavior
+
+          // Only process if the link has a valid href starting with '#'
+          const href = this.getAttribute('href');
+          if (href && href.startsWith('#')) {
+             const targetId = href.substring(1);
+
+             // Remove active class from all links
+             navLinks.forEach(l => l.classList.remove('active'));
+             // Add active class to clicked link
+             this.classList.add('active');
+
+             // Show the targeted section
+             showSection(targetId);
+          } else {
+            // Handle non-section links (like 'About', Discord, GitHub) if needed
+            console.log(`Navigating to: ${href}`);
+            // Potentially window.location.href = href; if they are external links
           }
         });
       });
     });
   </script>
-  
+
   <!-- Custom JS -->
-  <script src="index.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>
