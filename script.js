@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let fileContent = ''; // For Raw to NBT
   let extractedFileContent = ''; // For Extract Commands
   let commandsToStructureContent = ''; // For Commands to Structure
+  let javaCommandsContent = ''; // For Java to Bedrock
 
   // Helper function to get UTF-8 byte length
   function getUtf8ByteLength(str) {
@@ -1353,6 +1354,172 @@ document.addEventListener('DOMContentLoaded', function() {
          // Only show this if the initial call to downloadMcstructure fails (rare)
         showCmdStructValidationMessage('Failed to initiate structure file download. Check console for errors.');
       }
+    });
+  }
+
+  // Java to Bedrock File Reading
+  function readJavaCommandsFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      javaCommandsContent = e.target.result;
+      document.getElementById('java-bedrock-drop-area').innerHTML = '<i class="fas fa-check-circle" style="color: #2ecc71;"></i><p>File loaded. Ready to translate.</p><p class="text-muted small">Click here to select a different file</p><input type="file" id="java-bedrock-input-file" accept=".txt" class="file-input">';
+      
+      const dropArea = document.getElementById('java-bedrock-drop-area');
+      if(dropArea) {
+        dropArea.onclick = function(e) {
+          if(javaCommandsContent && document.getElementById('java-bedrock-output-preview').style.display === 'block') {
+            resetToolSection('java-to-bedrock');
+          } else {
+            document.getElementById('java-bedrock-input-file').click();
+          }
+        };
+      }
+      
+      const inputFile = document.getElementById('java-bedrock-input-file');
+      if(inputFile) {
+        inputFile.onchange = function(e) {
+          const file = e.target.files[0];
+          if (file) readJavaCommandsFile(file);
+        };
+      }
+      
+      attachDropAreaEvents();
+    };
+    reader.readAsText(file);
+  }
+
+  // Translate button event listener
+  const translateButton = document.getElementById('translate-button');
+  if(translateButton) {
+    translateButton.addEventListener('click', async () => {
+      if (!javaCommandsContent) {
+        showJavaBedrockValidationMessage('Please select a file with Java commands.');
+        return;
+      }
+
+      try {
+        // Show loading state
+        translateButton.disabled = true;
+        translateButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Translating...';
+        showJavaBedrockValidationMessage('Translating commands...', 'info');
+
+        // Send commands to translation endpoint
+        const response = await fetch('/translate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            commands: javaCommandsContent.split('\n').filter(cmd => cmd.trim())
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Translation failed');
+        }
+
+        const result = await response.json();
+
+        if (!result.translatedCommands || !Array.isArray(result.translatedCommands)) {
+          throw new Error('Invalid response format from server');
+        }
+
+        // Display translated commands
+        const previewText = document.getElementById('java-bedrock-preview-text');
+        previewText.value = result.translatedCommands.join('\n');
+        document.getElementById('java-bedrock-output-preview').style.display = 'block';
+        document.getElementById('java-bedrock-download-button').disabled = false;
+        showJavaBedrockValidationMessage('Translation completed successfully!', 'success');
+      } catch (error) {
+        console.error('Translation error:', error);
+        showJavaBedrockValidationMessage(error.message || 'Error during translation. Please try again.');
+      } finally {
+        // Reset button state
+        translateButton.disabled = false;
+        translateButton.innerHTML = '<i class="fas fa-exchange-alt me-2"></i>Translate Commands';
+      }
+    });
+  }
+
+  // Download translated commands button event listener
+  const javaBedrockDownloadButton = document.getElementById('java-bedrock-download-button');
+  if(javaBedrockDownloadButton) {
+    javaBedrockDownloadButton.addEventListener('click', () => {
+      const commandsText = document.getElementById('java-bedrock-preview-text').value;
+      const fileName = 'translated_bedrock_commands.txt';
+
+      const blob = new Blob([commandsText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Java to Bedrock validation message display function
+  function showJavaBedrockValidationMessage(message, type = 'error') {
+    const validationMessage = document.getElementById('java-bedrock-validation-message');
+    validationMessage.textContent = message;
+
+    // Update styling based on message type
+    if (type === 'success') {
+      validationMessage.style.backgroundColor = 'rgba(0, 255, 0, 0.1)';
+      validationMessage.style.borderLeftColor = '#2ecc71';
+      validationMessage.style.color = '#2ecc71';
+    } else if (type === 'info') {
+      validationMessage.style.backgroundColor = 'rgba(52, 152, 219, 0.1)';
+      validationMessage.style.borderLeftColor = '#3498db';
+      validationMessage.style.color = '#3498db';
+    } else {
+      validationMessage.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+      validationMessage.style.borderLeftColor = '#ff3b3b';
+      validationMessage.style.color = '#ff6b6b';
+    }
+
+    validationMessage.style.display = 'block';
+    if (type !== 'info') {
+      setTimeout(() => {
+        validationMessage.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  // Add Java to Bedrock drop area events
+  const javaBedrockDropArea = document.getElementById('java-bedrock-drop-area');
+  const javaBedrockInput = document.getElementById('java-bedrock-input-file');
+  
+  if(javaBedrockDropArea && javaBedrockInput) {
+    javaBedrockDropArea.onclick = function(e) {
+      // Don't trigger if we clicked the reset button
+      if (e.target.classList.contains('reset-file-btn')) return;
+      javaBedrockInput.click();
+    };
+
+    javaBedrockInput.onchange = function(e) {
+      const file = e.target.files[0];
+      if (file) readJavaCommandsFile(file);
+    };
+
+    // Add drag and drop functionality
+    javaBedrockDropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      javaBedrockDropArea.classList.add('dragover');
+    });
+
+    javaBedrockDropArea.addEventListener('dragleave', () => {
+      javaBedrockDropArea.classList.remove('dragover');
+    });
+
+    javaBedrockDropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      javaBedrockDropArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) readJavaCommandsFile(file);
     });
   }
 

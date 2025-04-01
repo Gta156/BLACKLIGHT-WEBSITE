@@ -803,23 +803,35 @@
       margin-bottom: 0;
     }
 
-    /* File input styling for better accessibility */
+    /* File input styling */
     .file-input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-      opacity: 0.01; /* Not fully transparent to ensure it's accessible */
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
     }
-    
+
     /* Make drop areas more clearly clickable */
-    #drop-area, #extract-drop-area, #cmd-struct-drop-area {
+    #drop-area,
+    #extract-drop-area,
+    #cmd-struct-drop-area,
+    #java-bedrock-drop-area {
       cursor: pointer;
       position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #drop-area:hover,
+    #extract-drop-area:hover,
+    #cmd-struct-drop-area:hover,
+    #java-bedrock-drop-area:hover {
+      background-color: rgba(20, 20, 30, 0.7);
     }
 
     /* Output textareas styling */
@@ -847,6 +859,104 @@
       color: var(--neon-teal);
       border: 1px solid rgba(0, 238, 255, 0.3);
     }
+
+    /* Java to Bedrock Styles */
+    #java-bedrock-drop-area {
+      margin: 15px auto;
+      padding: 40px 30px;
+      border: 2px dashed rgba(14, 130, 241, 0.5);
+      border-radius: 10px;
+      text-align: center;
+      background-color: rgba(10, 10, 15, 0.5);
+      color: white;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #java-bedrock-drop-area::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      transition: width 0.6s ease;
+    }
+
+    #java-bedrock-drop-area:hover::after {
+      width: 100%;
+    }
+
+    #java-bedrock-drop-area.dragover {
+      border-color: var(--neon-blue);
+      background-color: rgba(14, 130, 241, 0.1);
+      box-shadow: 0 0 30px rgba(14, 130, 241, 0.2);
+    }
+
+    #java-bedrock-drop-area i {
+      font-size: 3rem;
+      color: var(--neon-blue);
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    #java-bedrock-validation-message {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 0, 0, 0.1);
+      border-left: 4px solid #ff3b3b;
+      color: #ff6b6b;
+    }
+
+    #java-bedrock-output-preview {
+      display: none;
+      margin-top: 40px;
+      margin-bottom: 40px;
+      padding: 30px;
+      background-color: rgba(10, 10, 15, 0.7);
+      border-radius: 10px;
+      color: white;
+      position: relative;
+    }
+
+    #java-bedrock-output-preview::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+    }
+
+    #java-bedrock-output-preview h4 {
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-teal));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    #java-bedrock-preview-text {
+      width: 100%;
+      background-color: rgba(20, 20, 30, 0.7);
+      color: var(--neon-blue);
+      border: 1px solid rgba(14, 130, 241, 0.3);
+      padding: 15px;
+      border-radius: 8px;
+      resize: vertical;
+      white-space: pre;
+      min-height: 200px;
+      font-family: 'Consolas', monospace;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
   </style>
 </head>
 
@@ -862,6 +972,9 @@
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
             <a class="nav-link active" href="#raw-to-nbt">Raw to NBT</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#java-to-bedrock">Java to Bedrock</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#extract-commands">Extract Commands</a>
@@ -937,6 +1050,40 @@
             <div class="text-center">
               <button id="download-button" class="btn btn-cyber">
                 <i class="fas fa-download me-2"></i>Download NBT File
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Java to Bedrock Section -->
+      <div id="java-to-bedrock" class="row tool-section mt-5" style="display: none;">
+        <div class="col-lg-8 mx-auto">
+          <div class="tool-card">
+            <h3 class="text-center mb-4 neon-text">JAVA TO BEDROCK CONVERTER</h3>
+            <!-- Drop Area -->
+            <div id="java-bedrock-drop-area" title="Text files with Java commands">
+              <i class="fas fa-file-upload"></i>
+              <p>Drag and drop your Java commands file here, or click to select one</p>
+              <input type="file" id="java-bedrock-input-file" accept=".txt" class="file-input">
+            </div>
+
+            <div class="text-center mt-4">
+              <button id="translate-button" class="btn btn-cyber">
+                <i class="fas fa-exchange-alt me-2"></i>Translate Commands
+              </button>
+            </div>
+
+            <div id="java-bedrock-validation-message"></div>
+          </div>
+
+          <!-- Translation Output Preview -->
+          <div id="java-bedrock-output-preview" style="display: none;">
+            <h4><i class="fas fa-code me-2"></i>TRANSLATED COMMANDS</h4>
+            <textarea id="java-bedrock-preview-text" class="code-textarea" rows="10" readonly spellcheck="false" wrap="soft"></textarea>
+            <div class="text-center">
+              <button id="java-bedrock-download-button" class="btn btn-cyber">
+                <i class="fas fa-download me-2"></i>Download Bedrock Commands
               </button>
             </div>
           </div>

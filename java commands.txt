@@ -1,0 +1,67 @@
+
+fill ~3 ~0 ~3 ~13 ~0 ~3 minecraft:obsidian
+fill ~3 ~0 ~4 ~13 ~0 ~4 minecraft:obsidian
+fill ~3 ~0 ~5 ~13 ~0 ~5 minecraft:obsidian
+fill ~3 ~0 ~6 ~13 ~0 ~6 minecraft:obsidian
+fill ~3 ~0 ~7 ~13 ~0 ~7 minecraft:obsidian
+fill ~3 ~0 ~8 ~13 ~0 ~8 minecraft:obsidian
+fill ~3 ~0 ~9 ~13 ~0 ~9 minecraft:obsidian
+fill ~3 ~0 ~10 ~13 ~0 ~10 minecraft:obsidian
+fill ~3 ~0 ~11 ~13 ~0 ~11 minecraft:obsidian
+fill ~3 ~0 ~12 ~13 ~0 ~12 minecraft:obsidian
+fill ~3 ~0 ~13 ~13 ~0 ~13 minecraft:obsidian
+setblock ~3 ~1 ~6 minecraft:jungle_stairs["facing"="east","half"="bottom","shape"="straight"]
+setblock ~3 ~1 ~7 minecraft:jungle_stairs["facing"="north","half"="bottom","shape"="straight"]
+fill ~3 ~1 ~11 ~3 ~1 ~12 minecraft:yellow_concrete
+setblock ~3 ~2 ~6 minecraft:jungle_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~4 ~1 ~8 minecraft:dark_oak_door["facing"="north","half"="lower","hinge"="left","open"="true","powered"="false"]
+setblock ~4 ~1 ~9 minecraft:birch_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~4 ~1 ~10 minecraft:black_concrete
+setblock ~4 ~1 ~12 minecraft:yellow_concrete
+setblock ~4 ~2 ~8 minecraft:dark_oak_door["facing"="north","half"="upper","hinge"="left","open"="true","powered"="false"]
+setblock ~5 ~1 ~4 minecraft:dark_oak_door["facing"="north","half"="lower","hinge"="left","open"="false","powered"="false"]
+setblock ~5 ~1 ~6 minecraft:brick_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~5 ~1 ~8 minecraft:cracked_stone_bricks
+setblock ~5 ~1 ~9 minecraft:purple_concrete
+setblock ~5 ~1 ~11 minecraft:birch_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~5 ~1 ~13 minecraft:stone_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~5 ~2 ~4 minecraft:dark_oak_door["facing"="north","half"="upper","hinge"="left","open"="false","powered"="false"]
+setblock ~5 ~2 ~8 minecraft:black_concrete
+setblock ~6 ~1 ~5 minecraft:magma_block
+fill ~6 ~1 ~7 ~7 ~1 ~7 minecraft:magma_block
+setblock ~6 ~1 ~10 minecraft:purple_concrete
+setblock ~7 ~1 ~5 minecraft:spruce_log["axis"="x"]
+setblock ~7 ~1 ~8 minecraft:magma_block
+fill ~7 ~1 ~9 ~8 ~1 ~9 minecraft:cracked_stone_bricks
+setblock ~7 ~1 ~11 minecraft:birch_stairs["facing"="east","half"="bottom","shape"="straight"]
+setblock ~7 ~1 ~13 minecraft:cracked_deepslate_bricks
+fill ~7 ~2 ~9 ~8 ~2 ~9 minecraft:black_wool
+setblock ~8 ~1 ~4 minecraft:spruce_log["axis"="x"]
+setblock ~8 ~1 ~5 minecraft:spruce_log["axis"="z"]
+setblock ~8 ~1 ~7 minecraft:brick_stairs["facing"="south","half"="bottom","shape"="straight"]
+setblock ~8 ~1 ~8 minecraft:cracked_stone_bricks
+setblock ~8 ~1 ~10 minecraft:cobblestone_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~8 ~1 ~12 minecraft:cobblestone_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~9 ~1 ~5 minecraft:spruce_log["axis"="y"]
+fill ~9 ~1 ~8 ~10 ~1 ~8 minecraft:stone_bricks
+setblock ~9 ~1 ~9 minecraft:cobblestone_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~9 ~1 ~12 minecraft:oak_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~9 ~1 ~13 minecraft:oak_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~10 ~1 ~6 minecraft:stone_bricks
+setblock ~10 ~1 ~11 minecraft:oak_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~10 ~2 ~8 minecraft:cracked_deepslate_bricks
+setblock ~10 ~3 ~8 minecraft:black_wool
+fill ~11 ~1 ~4 ~12 ~1 ~4 minecraft:bricks
+fill ~11 ~1 ~7 ~11 ~2 ~7 minecraft:light_gray_wool
+setblock ~11 ~1 ~8 minecraft:light_gray_wool
+setblock ~11 ~1 ~9 minecraft:stone_bricks
+setblock ~11 ~1 ~10 minecraft:cobblestone_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~11 ~1 ~12 minecraft:oak_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~11 ~1 ~13 minecraft:cracked_deepslate_bricks
+setblock ~11 ~2 ~9 minecraft:cobblestone_stairs["facing"="west","half"="bottom","shape"="straight"]
+setblock ~12 ~1 ~6 minecraft:brick_slab["type"="double"]
+setblock ~12 ~1 ~10 minecraft:cobblestone_stairs["facing"="north","half"="bottom","shape"="straight"]
+setblock ~12 ~1 ~11 minecraft:white_wool
+setblock ~12 ~2 ~9 minecraft:light_gray_wool
+setblock ~13 ~1 ~10 minecraft:white_wool
+setblock ~13 ~1 ~12 minecraft:bricks
